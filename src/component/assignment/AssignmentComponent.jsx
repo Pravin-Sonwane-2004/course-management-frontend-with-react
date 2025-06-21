@@ -7,19 +7,19 @@ import moment from "moment"
 import { setMsg } from '../../actions/alertAction';
 import { connect } from 'react-redux'
 import { PropTypes } from 'prop-types'
-import { withRouter } from 'react-router'
+import { useNavigate, useParams } from 'react-router-dom';
 class AssignmentComponent extends Component {
     constructor(props) {
         super(props)
         const due = moment().add(15, 'days').format("YYYY-MM-DD")
         //due.setDate(due.getDate() + 30)
         this.state = {
-            id: this.props.match.params.id,
+            id: this.props.params.id,
             name: "",
             description: "",
             dueDate: due,//.toLocaleDateString("en-US"),
             selectedFile: null,
-            courseid: this.props.match.params.cid,
+            courseid: this.props.params.cid,
             coursedesc: "",
         }
     }
@@ -58,7 +58,7 @@ class AssignmentComponent extends Component {
         // Send formData object 
         AssignmentDataService.save(formData).then(res => {
             setMsg("Assignment added Successfully", "success")
-            this.props.history.push(`/course/view/${courseid}`)
+            this.props.navigate(`/course/view/${courseid}`)
         })
     };
 
@@ -115,5 +115,10 @@ AssignmentComponent.propTypes = {
     setMsg: PropTypes.func.isRequired,
 }
 
-export default connect(null, { setMsg })(withRouter(AssignmentComponent))
+function AssignmentComponentWrapper(props) {
+    const navigate = useNavigate();
+    const params = useParams();
+    return <AssignmentComponent {...props} navigate={navigate} params={params} />;
+}
+export default connect(null, { setMsg })(AssignmentComponentWrapper);
 

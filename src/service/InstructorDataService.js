@@ -1,23 +1,31 @@
-import axios from "axios"
-import SuperService from "./SuperService";
-const BACKEND_API_URL = process.env.REACT_APP_URL
-class InstructorDataService extends SuperService {
+import {
+  createInstructor,
+  getInstructors,
+  deleteInstructor,
+  getInstructorByUsername,
+  getInstructorById
+} from './api';
 
-    saveInstructor(instructor) {
+class InstructorDataService {
+  saveInstructor(instructor) {
+    return createInstructor(instructor);
+  }
 
-        return this.requestWithHeader(axios.post, `${BACKEND_API_URL}/lecturer/save`, instructor)
-    }
-    getInstructors() {
-        return this.requestWithHeader(axios.get, `${BACKEND_API_URL}/get-all-lecturers`)
-    }
-    deleteInstructor(id) {
-        return this.requestWithHeader(axios.delete, `${BACKEND_API_URL}/lecturer/${id}`)
-    }
-    getInstructor(username) {
-        return this.requestWithHeader(axios.get, `${BACKEND_API_URL}/lecturer/${username}`)
-    }
-    getInstructorById(id) {
-        return this.requestWithHeader(axios.get, `${BACKEND_API_URL}/lecturer/id/${id}`)
-    }
+  getInstructors() {
+    return getInstructors();
+  }
+
+  deleteInstructor(id) {
+    return deleteInstructor(id);
+  }
+
+  getInstructor(username) {
+    return getInstructorByUsername(username);
+  }
+
+  getInstructorById(id) {
+    return getInstructorById(id);
+  }
 }
-export default new InstructorDataService()
+
+export default new InstructorDataService();

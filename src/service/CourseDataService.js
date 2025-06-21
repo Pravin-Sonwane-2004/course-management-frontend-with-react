@@ -1,35 +1,45 @@
-import axios from 'axios'
-import SuperService from './SuperService'
-const BACKEND_API_URL = process.env.REACT_APP_URL
+import {
+  getAllCourses,
+  getCoursesByUser,
+  getCoursesBySemester,
+  deleteCourse,
+  getCourse,
+  createCourse,
+  updateCourse,
+  searchCourse
+} from './api';
 
-class CourseDataService extends SuperService {
+class CourseDataService {
+  retrieveAllCourses(userName) {
+    if (!userName) {
+      return getAllCourses();
+    }
+    return getCoursesByUser(userName);
+  }
 
-    retrieveAllCourses(userName) {
-        if (userName === '' || userName === undefined) {
-            return this.requestWithHeader(axios.get, `${BACKEND_API_URL}/get-all-courses`)
-        }
-        return this.requestWithHeader(axios.get, `${BACKEND_API_URL}/courses/list/${userName}`)
+  retrieveAllCoursesWithSemMapping(id) {
+    return getCoursesBySemester(id);
+  }
 
-    }
-    retrieveAllCoursesWithSemMapping(id) {
-        return this.requestWithHeader(axios.get, `${BACKEND_API_URL}/courses/sem/${id}`)
-    }
-    deleteCourse(id) {
+  deleteCourse(id) {
+    return deleteCourse(id);
+  }
 
-        return this.requestWithHeader(axios.delete, `${BACKEND_API_URL}/courses/${id}`)
-    }
-    getCourse(id) {
-        return this.requestWithHeader(axios.get, `${BACKEND_API_URL}/courses/${id}`)
-    }
+  getCourse(id) {
+    return getCourse(id);
+  }
 
-    createCourse(userName, course) {
-        return this.requestWithHeader(axios.post, `${BACKEND_API_URL}/courses/save/${userName}`, course)
-    }
-    updateCourse(userName, id, course) {
-        return this.requestWithHeader(axios.put, `${BACKEND_API_URL}/courses/update/${userName}`, course)
-    }
-    searchCourse(value) {
-        return this.requestWithHeader(axios.get, `${BACKEND_API_URL}/courses/search/${value}`)
-    }
+  createCourse(userName, course) {
+    return createCourse(userName, course);
+  }
+
+  updateCourse(userName, course) {
+    return updateCourse(userName, course);
+  }
+
+  searchCourse(value) {
+    return searchCourse(value);
+  }
 }
-export default new CourseDataService()
+
+export default new CourseDataService();

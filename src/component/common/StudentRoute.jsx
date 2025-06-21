@@ -1,12 +1,13 @@
 import React from 'react';
-import { Route, Redirect } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
-const StudentRoute = ({ component: Component, ...rest }) => (
-    <Route {...rest} render={props => (
-        localStorage.getItem('user') && JSON.parse(localStorage.getItem('user')).role === "ROLE_STUDENT"
-            ? <Component {...props} />
-            : <Redirect to={{ pathname: '/', state: { from: props.location } }} />
-    )} />
-)
+const StudentRoute = ({ children }) => {
+  const location = useLocation();
+  const user = localStorage.getItem('user');
+  const isStudent = user && JSON.parse(user).role === "ROLE_STUDENT";
+  return isStudent
+    ? children
+    : <Navigate to="/" replace state={{ from: location }} />;
+};
 
-export default StudentRoute
+export default StudentRoute;

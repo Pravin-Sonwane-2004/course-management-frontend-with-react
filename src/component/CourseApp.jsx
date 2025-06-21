@@ -4,8 +4,8 @@ import CourseComponent from './course/CourseComponent'
 import InstructorComponent from './instructor/InstructorComponent'
 import LoginPage from './auth/LoginPage'
 import Logout from './auth/Logout'
-import { PrivateRoute } from './common/PrivateRoute'
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+import PrivateRoute from './common/PrivateRoute'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import AppNavBar from './common/AppNavBar'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
@@ -41,30 +41,28 @@ class CourseApp extends Component {
                             <ErrorBoundry>
                                 <AppNavBar />
                             </ErrorBoundry>
-                            <Switch>
-                                <Route path="/server-error" exact component={ErrorLanding} />
-                                <Route path="/" exact component={ListCoursesComponents} />
-                                <StudentRoute path="/student/index" exact component={StudentIndex} />
-                                <AdminRoute path="/student" exact component={ListStudentComponent} />
-                                <AdminRoute path="/student/add/:id" exact component={StudentComponent} />
-                                <AdminRoute path="/semester/add/:id" exact component={SemesterComponent} />
-                                <AdminRoute path="/semester" exact component={ListSemesterComponent} />
-                                <AdminRoute path="/semester/map/:id" exact component={MapSemesterSubject} />
+                            <Routes>
+                                <Route path="/server-error" element={<ErrorLanding />} />
+                                <Route path="/" element={<ListCoursesComponents />} />
+                                <Route path="/student/index" element={<StudentRoute><StudentIndex /></StudentRoute>} />
+                                <Route path="/student" element={<AdminRoute><ListStudentComponent /></AdminRoute>} />
+                                <Route path="/student/add/:id" element={<AdminRoute><StudentComponent /></AdminRoute>} />
+                                <Route path="/semester/add/:id" element={<AdminRoute><SemesterComponent /></AdminRoute>} />
+                                <Route path="/semester" element={<AdminRoute><ListSemesterComponent /></AdminRoute>} />
+                                <Route path="/semester/map/:id" element={<AdminRoute><MapSemesterSubject /></AdminRoute>} />
 
-                                <PrivateRoute path="/course/add/:id" component={CourseComponent} />
-                                <PrivateRoute path="/course/view/:id" component={CourseDetailsComponent} />
-                                <PrivateRoute path="/lecturer/add/:id" component={InstructorComponent} />
-                                <PrivateRoute path="/lecturer" component={ListInstructorComponent} />
-                                <PrivateRoute path="/course/:cid/assignment/add/:id" component={AssignmentComponent} />
-                                <Route path='/login' exact component={LoginPage} />
-                                <Route path='/navbar-demo' exact component={NavBarDemo} />
-                                <Route path='/logout' exact component={Logout} />
-                                <Route path='/jeasygrid' exact component={JeasyGrid} />
-                                <ErrorBoundry>
-                                    <AdminRoute path="/user/add/:id" component={UserComponent} />
-                                    <AdminRoute path="/users" component={ListUserComponent} />
-                                </ErrorBoundry>
-                            </Switch>
+                                <Route path="/course/add/:id" element={<PrivateRoute><CourseComponent /></PrivateRoute>} />
+                                <Route path="/course/view/:id" element={<PrivateRoute><CourseDetailsComponent /></PrivateRoute>} />
+                                <Route path="/lecturer/add/:id" element={<PrivateRoute><InstructorComponent /></PrivateRoute>} />
+                                <Route path="/lecturer" element={<PrivateRoute><ListInstructorComponent /></PrivateRoute>} />
+                                <Route path="/course/:cid/assignment/add/:id" element={<PrivateRoute><AssignmentComponent /></PrivateRoute>} />
+                                <Route path='/login' element={<LoginPage />} />
+                                <Route path='/navbar-demo' element={<NavBarDemo />} />
+                                <Route path='/logout' element={<Logout />} />
+                                <Route path='/jeasygrid' element={<JeasyGrid />} />
+                                <Route path='/user/add/:id' element={<AdminRoute><UserComponent /></AdminRoute>} />
+                                <Route path='/users' element={<AdminRoute><ListUserComponent /></AdminRoute>} />
+                            </Routes>
                         </>
                     </Router>
                 </PersistGate>

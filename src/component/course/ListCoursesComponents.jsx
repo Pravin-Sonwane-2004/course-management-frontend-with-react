@@ -21,6 +21,7 @@ class ListCoursesComponents extends Component {
             messageType: "",
             instructors: [],
             isAuthenticated: false,
+            selectedInstructor: ""
         }
     }
 
@@ -94,10 +95,10 @@ class ListCoursesComponents extends Component {
                 <div className="container">
                     <div className="container">
                         <label>Filter By: Instructor</label>
-                        <select name="instructor" className="form-control" onChange={this.refreshCoursesByLecturer}>
+                        <select name="instructor" className="form-control" onChange={e => this.setState({ selectedInstructor: e.target.value })}>
                             <option value="">---</option>
                             {this.state.instructors.map(i =>
-                                <option key={i.id} value={i.userName}>{i.name}</option>)}
+                                <option key={i.userName || i.id} value={i.name}>{i.name}</option>)}
                         </select>
                     </div>
                     <table className="table">
@@ -114,21 +115,26 @@ class ListCoursesComponents extends Component {
                         </thead>
                         <tbody>
                             {
-                                this.state.courses.map(course =>
-                                    <tr key={course.id}>
-                                        <td>{course.id}</td>
-                                        <td>{course.description}</td>
-                                        {course.lecturer ? <td> {course.lecturer.name} </td> : <td style={{ color: "red" }}><b>Not Set</b></td>}
-                                        {isAuthenticated ? (
-                                            <>
-                                                <td><button className="btn btn-primary" data-toggle="tooltip" title="View Course Details" onClick={() => this.props.history.push(`/course/view/${course.id}`)} style={{ marginRight: 4 }}><i className="fas fa-info-circle" /></button>
-                                                    <button className="btn btn-success" data-toggle="tooltip" title="Update Course" onClick={() => this.props.history.push(`/course/add/${course.id}`)} style={{ marginRight: 4 }}><i className="far fa-edit" /></button>
-                                                    <button className="btn btn-warning" data-toggle="tooltip" title="Delete Course" onClick={() => this.deleteCourseClicked(course.id)} style={{ marginRight: 4 }}><i className="fas fa-trash-alt" /></button></td>
-                                            </>
-                                        ) : null}
+                                this.state.courses
+                                    .filter(course =>
+                                        !this.state.selectedInstructor ||
+                                        (course.lecturer && course.lecturer.name === this.state.selectedInstructor)
+                                    )
+                                    .map(course =>
+                                        <tr key={course.courseId || course.id}>
+                                            <td>{course.courseId || course.id}</td>
+                                            <td>{course.description}</td>
+                                            {course.lecturer ? <td> {course.lecturer.name} </td> : <td style={{ color: "red" }}><b>Not Set</b></td>}
+                                            {isAuthenticated ? (
+                                                <>
+                                                    <td><button className="btn btn-primary" data-toggle="tooltip" title="View Course Details" onClick={() => this.props.history.push(`/course/view/${course.courseId || course.id}`)} style={{ marginRight: 4 }}><i className="fas fa-info-circle" /></button>
+                                                        <button className="btn btn-success" data-toggle="tooltip" title="Update Course" onClick={() => this.props.history.push(`/course/add/${course.courseId || course.id}`)} style={{ marginRight: 4 }}><i className="far fa-edit" /></button>
+                                                        <button className="btn btn-warning" data-toggle="tooltip" title="Delete Course" onClick={() => this.deleteCourseClicked(course.courseId || course.id)} style={{ marginRight: 4 }}><i className="fas fa-trash-alt" /></button></td>
+                                                </>
+                                            ) : null}
 
-                                    </tr>
-                                )
+                                        </tr>
+                                    )
                             }
                         </tbody>
                     </table>

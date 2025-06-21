@@ -1,7 +1,7 @@
 @import url(https://unpkg.com/bootstrap@4.1.0/dist/css/bootstrap.min.css);
-@import "rc-easyui/dist/themes/default/easyui.css";
-@import "rc-easyui/dist/themes/icon.css";
-@import "~rc-easyui/dist/themes/react.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 .App {
   text-align: center;

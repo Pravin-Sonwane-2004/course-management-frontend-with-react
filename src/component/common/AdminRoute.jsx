@@ -1,21 +1,13 @@
 import React from 'react';
-import { Route, Redirect } from 'react-router-dom';
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
+import { Navigate, useLocation } from 'react-router-dom';
 
+const AdminRoute = ({ children }) => {
+  const location = useLocation();
+  const user = localStorage.getItem('user');
+  const isAdmin = user && JSON.parse(user).role === "ROLE_ADMIN";
+  return isAdmin
+    ? children
+    : <Navigate to="/login" replace state={{ from: location }} />;
+};
 
-const AdminRoute = ({ component: Component, ...rest }) => (
-    <Route {...rest} render={props => (
-        localStorage.getItem('user') && JSON.parse(localStorage.getItem('user')).role === "ROLE_ADMIN"
-            ? <Component {...props} />
-            : <Redirect to={{ pathname: '/login', state: { from: props.location } }} />
-    )} />
-)
-AdminRoute.propTypes = {
-    role: PropTypes.string.isRequired
-}
-
-const mapStateToProps = (state) => ({
-    role: state.auth.role
-})
-export default connect(mapStateToProps)(AdminRoute)
+export default AdminRoute;

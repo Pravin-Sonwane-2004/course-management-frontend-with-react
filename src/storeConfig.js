@@ -1,4 +1,4 @@
-import thunk from 'redux-thunk'
+import { thunk } from 'redux-thunk';
 //import rootReducer from './reducers'
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux'
 //import createEngine from 'redux-storage-engine-localstorage';

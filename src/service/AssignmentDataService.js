@@ -1,26 +1,31 @@
-import axios from 'axios'
-import SuperService from './SuperService'
-const BACKEND_API_URL = 'http://localhost:8085'
+import {
+  createAssignment,
+  getAssignments,
+  getAssignmentFile,
+  getAssignmentJs,
+  deleteAssignment
+} from './api';
 
-class AssignmentDataService extends SuperService {
+class AssignmentDataService {
+  save(assignmentdata) {
+    return createAssignment(assignmentdata);
+  }
 
-    save(assignmentdata) {
-        return this.requestWithHeader(axios.post, `${BACKEND_API_URL}/assignments/add`, assignmentdata)
-    }
-    getAll() {
-        return this.requestWithHeader(axios.get, `${BACKEND_API_URL}/assignments`)
-    }
+  getAll() {
+    return getAssignments();
+  }
 
-    getFile(path) {
-        return this.requestWithHeader(axios.get, `${BACKEND_API_URL}/assignments/getfile/?path=${encodeURI(path)}`)
-    }
-    getJscript() {
-        return this.requestWithHeader(axios.get, `${BACKEND_API_URL}/assignments/getjs`)
-    }
+  getFile(path) {
+    return getAssignmentFile(path);
+  }
 
-    deleteAssignment(id) {
-        return this.requestWithHeader(axios.delete, `${BACKEND_API_URL}/assignments/${id}`)
-    }
+  getJscript() {
+    return getAssignmentJs();
+  }
 
+  deleteAssignment(id) {
+    return deleteAssignment(id);
+  }
 }
-export default new AssignmentDataService()
+
+export default new AssignmentDataService();

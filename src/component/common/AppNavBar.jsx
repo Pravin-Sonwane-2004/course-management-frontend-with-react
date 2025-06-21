@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Link, withRouter } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 
@@ -102,4 +102,4 @@ const mapStateToProps = (state) => ({
     role: state.auth.role,
     tab: state.auth.tab
 })
-export default connect(mapStateToProps)(withRouter(AppNavBar))
+export default connect(mapStateToProps)(AppNavBar)
