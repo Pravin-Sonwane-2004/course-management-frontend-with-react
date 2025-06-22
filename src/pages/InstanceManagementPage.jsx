@@ -1,6 +1,6 @@
 import React from 'react';
-import InstanceCreationForm from '../components/InstanceCreationForm';
-import InstanceList from '../components/InstanceList';
+import InstanceCreationForm from '../components/instances/InstanceCreationForm';
+import InstanceList from '../components/instances/InstanceList';
 
 const InstanceManagementPage = () => {
     return (

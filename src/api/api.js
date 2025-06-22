@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8080/api';
 
+// Course endpoints
 export const api = axios.create({
     baseURL: API_URL,
     headers: {
@@ -17,7 +18,7 @@ const handleResponse = async (response) => {
     }
     
     if (response.status >= 200 && response.status < 300) {
-        return response.data;
+        return response;
     }
     
     const error = new Error(response.statusText);
@@ -32,7 +33,7 @@ export const createCourse = async (courseData) => {
 };
 
 export const getCourses = async () => {
-    const response = await api.get('/courses');
+    const response = await api.get('/courses/combined');
     return handleResponse(response);
 };
 
@@ -47,9 +48,12 @@ export const createInstance = async (instanceData) => {
     return handleResponse(response);
 };
 
-export const getInstances = async () => {
-    const response = await api.get('/instances');
-    return handleResponse(response);
+export const getInstances = async (year = null, semester = null) => {
+    const url = year && semester 
+        ? `/instances/${year}/${semester}`
+        : '/instances';
+    const response = await api.get(url);
+    return response;
 };
 
 export const getInstancesByYearAndSemester = async (year, semester) => {

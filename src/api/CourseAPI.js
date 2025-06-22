@@ -1,36 +1,52 @@
-const API_BASE_URL = 'http://localhost:8080/api'; // Adjust if needed
+import { api } from './api';
 
-export async function createCourse(courseData) {
-  const response = await fetch(`${API_BASE_URL}/courses`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(courseData),
+export const createCourse = async (courseData) => {
+  const response = await api.post('/courses', {
+    courseId: courseData.courseId,
+    name: courseData.name,
+    description: courseData.description,
+    prerequisites: courseData.prerequisites && courseData.prerequisites.length > 0 ? 
+        Array.from(new Set(courseData.prerequisites)) : 
+        null
   });
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to create course');
+  return handleResponse(response);
+};
+
+export const getAllCourses = async () => {
+  try {
+    const response = await api.get('/courses');
+    if (response.status === 200) {
+      return response.data;
+    }
+    throw new Error('Failed to fetch courses');
+  } catch (error) {
+    console.error('Error fetching courses:', error);
+    throw error;
   }
-  return response.json();
-}
+};
 
-export async function getAllCourses() {
-  const response = await fetch(`${API_BASE_URL}/courses`);
-  if (!response.ok) throw new Error('Failed to fetch courses');
-  return response.json();
-}
-
-export async function getCourseById(id) {
-  const response = await fetch(`${API_BASE_URL}/courses/${id}`);
-  if (!response.ok) throw new Error('Failed to fetch course');
-  return response.json();
-}
-
-export async function deleteCourse(id) {
-  const response = await fetch(`${API_BASE_URL}/courses/${id}`, {
-    method: 'DELETE',
-  });
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to delete course');
+export const getCourseById = async (id) => {
+  try {
+    const response = await api.get(`/courses/by-course-id/${id}`);
+    if (response.status === 200) {
+      return response.data;
+    }
+    throw new Error('Course not found');
+  } catch (error) {
+    console.error('Error fetching course:', error);
+    throw error;
   }
-}
+};
+
+export const deleteCourse = async (id) => {
+  try {
+    const response = await api.delete(`/courses/${id}`);
+    if (response.status === 204) {
+      return true;
+    }
+    throw new Error('Failed to delete course');
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    throw error;
+  }
+};

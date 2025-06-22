@@ -1,6 +1,6 @@
 import React from 'react';
-import CourseCreationForm from '../components/CourseCreationForm';
-import CourseList from '../components/CourseList';
+import CourseCreationForm from '../components/courses/CourseCreationForm';
+import CourseList from '../components/courses/CourseList';
 
 const CourseManagementPage = () => {
     return (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getCourses, createInstance } from '../api/api';
+import { getCourses, createInstance } from '../../api/api';
 
 const InstanceCreationForm = () => {
     const [instanceData, setInstanceData] = useState({
@@ -8,8 +8,8 @@ const InstanceCreationForm = () => {
         semester: ''
     });
     const [courses, setCourses] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchCourses();
@@ -17,18 +17,18 @@ const InstanceCreationForm = () => {
 
     const fetchCourses = async () => {
         try {
-            const courses = await getCourses();
-            if (Array.isArray(courses)) {
-                setCourses(courses.map(course => ({
+            const response = await getCourses();
+            if (response.status === 200) {
+                const formattedCourses = response.data.map(course => ({
                     value: course.courseId,
                     label: `${course.courseId} - ${course.name}`
-                })));
+                }));
+                setCourses(formattedCourses);
             } else {
-                throw new Error('Invalid response format from server');
+                setError('Failed to fetch courses');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to fetch courses');
-            console.error('Error fetching courses:', err);
+            setError(err.response?.data?.message || 'Error fetching courses');
         }
     };
 
@@ -51,13 +51,16 @@ const InstanceCreationForm = () => {
                 year: parseInt(instanceData.year),
                 semester: parseInt(instanceData.semester)
             });
-            
+
             if (response.status === 200) {
                 setInstanceData({
                     courseId: '',
                     year: '',
                     semester: ''
                 });
+                setError('Instance created successfully!');
+            } else {
+                setError('Failed to create instance');
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to create instance');
@@ -76,7 +79,7 @@ const InstanceCreationForm = () => {
                     <select
                         id="courseId"
                         name="courseId"
-                        value={instanceData.courseId}
+                        value={instanceData.courseId || ''}
                         onChange={handleChange}
                         required
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -96,7 +99,7 @@ const InstanceCreationForm = () => {
                         type="number"
                         id="year"
                         name="year"
-                        value={instanceData.year}
+                        value={instanceData.year || ''}
                         onChange={handleChange}
                         required
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -108,7 +111,7 @@ const InstanceCreationForm = () => {
                     <select
                         id="semester"
                         name="semester"
-                        value={instanceData.semester}
+                        value={instanceData.semester || ''}
                         onChange={handleChange}
                         required
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"

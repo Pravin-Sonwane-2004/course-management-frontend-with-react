@@ -1,5 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { createCourse, getCourses } from '../api/api';
+import React, { useState } from 'react';
+import { createCourse } from '../../api/api';
+
+// Static data for testing
+const staticPrerequisites = [
+    { value: 'CS101', label: 'CS101 - Introduction to Computer Science' },
+    { value: 'CS102', label: 'CS102 - Data Structures' },
+    { value: 'CS201', label: 'CS201 - Algorithms' },
+    { value: 'CS202', label: 'CS202 - Database Systems' }
+];
 
 const CourseCreationForm = () => {
     const [courseData, setCourseData] = useState({
@@ -8,31 +16,8 @@ const CourseCreationForm = () => {
         description: '',
         prerequisites: []
     });
-    const [prerequisites, setPrerequisites] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-
-    useEffect(() => {
-        // Fetch prerequisites when component mounts
-        fetchPrerequisites();
-    }, []);
-
-    const fetchPrerequisites = async () => {
-        try {
-            const courses = await getCourses();
-            if (Array.isArray(courses)) {
-                setPrerequisites(courses.map(course => ({
-                    value: course.courseId,
-                    label: `${course.courseId} - ${course.name}`
-                })));
-            } else {
-                throw new Error('Invalid response format from server');
-            }
-        } catch (err) {
-            setError(err.response?.data?.message || 'Failed to fetch prerequisites');
-            console.error('Error fetching prerequisites:', err);
-        }
-    };
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -42,10 +27,12 @@ const CourseCreationForm = () => {
         }));
     };
 
-    const handlePrerequisiteChange = (selected) => {
+    const handlePrerequisiteChange = (e) => {
+        const selectedOptions = Array.from(e.target.selectedOptions);
+        const selectedValues = selectedOptions.map(option => option.value);
         setCourseData(prev => ({
             ...prev,
-            prerequisites: selected.map(option => option.value)
+            prerequisites: selectedValues
         }));
     };
 
@@ -53,13 +40,14 @@ const CourseCreationForm = () => {
         e.preventDefault();
         setLoading(true);
         setError('');
-
         try {
             const response = await createCourse({
                 courseId: courseData.courseId,
                 name: courseData.name,
                 description: courseData.description,
-                prerequisites: courseData.prerequisites
+                prerequisites: courseData.prerequisites && courseData.prerequisites.length > 0 ? 
+                    Array.from(new Set(courseData.prerequisites)) : 
+                    null
             });
             
             if (response.status === 200) {
@@ -69,9 +57,15 @@ const CourseCreationForm = () => {
                     description: '',
                     prerequisites: []
                 });
+                setError('Course created successfully!');
+            } else {
+                setError('Failed to create course');
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to create course');
+            if (err.response?.status === 409) {
+                setError('Course with this ID already exists. Please use a different ID.');
+            }
         } finally {
             setLoading(false);
         }
@@ -122,15 +116,16 @@ const CourseCreationForm = () => {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium">Prerequisites</label>
+                    <label htmlFor="prerequisites" className="block text-sm font-medium">Prerequisites</label>
                     <select
+                        id="prerequisites"
                         name="prerequisites"
                         value={courseData.prerequisites}
-                        onChange={(e) => handlePrerequisiteChange(e.target.selectedOptions)}
+                        onChange={handlePrerequisiteChange}
                         multiple
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     >
-                        {prerequisites.map((prereq) => (
+                        {staticPrerequisites.map((prereq) => (
                             <option key={prereq.value} value={prereq.value}>
                                 {prereq.label}
                             </option>
