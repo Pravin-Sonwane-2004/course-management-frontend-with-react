@@ -44,10 +44,10 @@ export default function CourseForm({ onSubmit = () => {}, initial = {}, allCours
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
     onSubmit({
-      courseId: Number(form.courseId),
+      courseId: form.courseId,
       name: form.name,
       description: form.description,
-      prerequisites: form.prerequisites,
+      prerequisites: Array.from(new Set(form.prerequisites)),
     });
   };
 
@@ -98,10 +98,10 @@ export default function CourseForm({ onSubmit = () => {}, initial = {}, allCours
           disabled={loading}
         >
           {allCourses
-            .filter(c => String(c.courseId) !== String(form.courseId))
+            .filter(c => c.courseId !== form.courseId)
             .map(c => (
               <option key={c.courseId} value={c.courseId}>
-                {c.name || c.title}
+                {c.name}
               </option>
             ))}
         </select>

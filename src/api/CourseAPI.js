@@ -5,9 +5,7 @@ export const createCourse = async (courseData) => {
     courseId: courseData.courseId,
     name: courseData.name,
     description: courseData.description,
-    prerequisites: courseData.prerequisites && courseData.prerequisites.length > 0 ? 
-        Array.from(new Set(courseData.prerequisites)) : 
-        null
+    prerequisites: courseData.prerequisites ? Array.from(new Set(courseData.prerequisites)) : null
   });
   return handleResponse(response);
 };
@@ -25,9 +23,9 @@ export const getAllCourses = async () => {
   }
 };
 
-export const getCourseById = async (id) => {
+export const getCourseById = async (courseId) => {
   try {
-    const response = await api.get(`/courses/by-course-id/${id}`);
+    const response = await api.get(`/courses/${courseId}`);
     if (response.status === 200) {
       return response.data;
     }
@@ -38,9 +36,9 @@ export const getCourseById = async (id) => {
   }
 };
 
-export const deleteCourse = async (id) => {
+export const deleteCourse = async (courseId) => {
   try {
-    const response = await api.delete(`/courses/${id}`);
+    const response = await api.delete(`/courses/${courseId}`);
     if (response.status === 204) {
       return true;
     }
