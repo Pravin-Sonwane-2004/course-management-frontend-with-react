@@ -82,22 +82,29 @@ const CourseList = () => {
     };
 
     return (
-        <div className="card">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold">Courses</h2>
-                <div className="relative">
-                    <Search className="absolute left-3 top-2.5 text-gray-400" />
+        <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center space-x-4">
+                    <h2 className="text-2xl font-bold text-gray-800">Courses</h2>
+                    <span className="text-sm text-gray-500">Manage your courses here</span>
+                </div>
+                <div className="relative w-80">
+                    <Search className="absolute left-3 top-3 text-gray-400" />
                     <input
                         type="text"
                         placeholder="Search courses..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-64 pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                 </div>
             </div>
 
-            {error && <div className="alert alert-danger mb-4">{error}</div>}
+            {error && (
+                <div className="bg-red-50 text-red-700 rounded-lg p-4 mb-6">
+                    <p>{error}</p>
+                </div>
+            )}
             {loading ? (
                 <div className="text-center py-4">Loading...</div>
             ) : (

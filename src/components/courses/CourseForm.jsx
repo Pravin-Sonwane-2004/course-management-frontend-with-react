@@ -52,67 +52,107 @@ export default function CourseForm({ onSubmit = () => {}, initial = {}, allCours
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4">
-      <div className="mb-3">
-        <label className="form-label">Course ID*</label>
-        <input
-          type="number"
-          name="courseId"
-          value={form.courseId}
-          onChange={handleChange}
-          className={`form-control${errors.courseId ? ' is-invalid' : ''}`}
-          disabled={loading}
-        />
-        {errors.courseId && <div className="invalid-feedback">{errors.courseId}</div>}
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
+      <div className="space-y-3">
+        <label className="block text-base font-semibold text-gray-800">Course ID *</label>
+        <div className="relative">
+          <input
+            type="number"
+            name="courseId"
+            value={form.courseId}
+            onChange={handleChange}
+            className={`w-full px-5 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 ${
+              errors.courseId ? 'border-red-600' : ''
+            }`}
+            disabled={loading}
+            placeholder="Enter course ID"
+          />
+          {errors.courseId && (
+            <p className="absolute -bottom-6 left-0 text-sm text-red-600">{errors.courseId}</p>
+          )}
+        </div>
       </div>
-      <div className="mb-3">
-        <label className="form-label">Title*</label>
-        <input
-          type="text"
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-          className={`form-control${errors.name ? ' is-invalid' : ''}`}
-          disabled={loading}
-        />
-        {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+
+      <div className="space-y-3">
+        <label className="block text-base font-semibold text-gray-800">Course Name *</label>
+        <div className="relative">
+          <input
+            type="text"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            className={`w-full px-5 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 ${
+              errors.name ? 'border-red-600' : ''
+            }`}
+            disabled={loading}
+            placeholder="Enter course name"
+          />
+          {errors.name && (
+            <p className="absolute -bottom-6 left-0 text-sm text-red-600">{errors.name}</p>
+          )}
+        </div>
       </div>
-      <div className="mb-3">
-        <label className="form-label">Description*</label>
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          className={`form-control${errors.description ? ' is-invalid' : ''}`}
-          disabled={loading}
-        />
-        {errors.description && <div className="invalid-feedback">{errors.description}</div>}
+
+      <div className="space-y-3">
+        <label className="block text-base font-semibold text-gray-800">Description *</label>
+        <div className="relative">
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            className={`w-full px-5 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 ${
+              errors.description ? 'border-red-600' : ''
+            }`}
+            disabled={loading}
+            rows="5"
+            placeholder="Enter course description"
+          />
+          {errors.description && (
+            <p className="absolute -bottom-6 left-0 text-sm text-red-600">{errors.description}</p>
+          )}
+        </div>
       </div>
-      <div className="mb-3">
-        <label className="form-label">Prerequisites (multi-select)</label>
-        <select
-          multiple
-          value={form.prerequisites}
-          onChange={handlePrereqChange}
-          className="form-control"
+
+      <div className="space-y-3">
+        <label className="block text-base font-semibold text-gray-800">Prerequisites</label>
+        <div className="relative">
+          <select
+            multiple
+            value={form.prerequisites}
+            onChange={handlePrereqChange}
+            className={`w-full px-5 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 ${
+              errors.prerequisites ? 'border-red-600' : ''
+            }`}
+            disabled={loading}
+            style={{ height: '200px' }}
+          >
+            {allCourses
+              .filter(c => c.courseId !== form.courseId)
+              .map(c => (
+                <option key={c.courseId} value={c.courseId}>
+                  {c.name}
+                </option>
+              ))}
+          </select>
+          {errors.prerequisites && (
+            <p className="mt-1 text-sm text-red-600">{errors.prerequisites}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="pt-6">
+        <button
+          type="submit"
           disabled={loading}
+          className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          {allCourses
-            .filter(c => c.courseId !== form.courseId)
-            .map(c => (
-              <option key={c.courseId} value={c.courseId}>
-                {c.name}
-              </option>
-            ))}
-        </select>
+          {loading ? 'Saving...' : 'Create Course'}
+        </button>
       </div>
-      <button
-        type="submit"
-        className="btn btn-primary"
-        disabled={loading}
-      >
-        {loading ? 'Submitting...' : 'Submit'}
-      </button>
-    </form>
+        </form>
+      </div>
+    </div>
   );
 }
