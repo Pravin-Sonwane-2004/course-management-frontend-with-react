@@ -4,12 +4,13 @@ import InstanceList from '../components/instances/InstanceList';
 
 const InstanceManagementPage = () => {
     return (
-        <div className="space-y-8 px-4 md:px-10">
-            <h1 className="text-3xl font-bold text-center text-blue-600 mb-12">
-                Course Instance Management
-            </h1>
-            <div className="space-y-8 mt-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
+            <div>
+                <h2 className="text-2xl font-bold text-blue-600 mb-6">Create New Course</h2>
                 <InstanceCreationForm />
+            </div>
+            <div>
+                <h2 className="text-2xl font-bold text-blue-600 mb-6">All Courses</h2>
                 <InstanceList />
             </div>
         </div>
