@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createCourse } from '../../api/api';
+import Select from 'react-select';
 
 // Static data for testing
 const staticPrerequisites = [
@@ -117,20 +118,21 @@ const CourseCreationForm = () => {
 
                 <div>
                     <label htmlFor="prerequisites" className="block text-sm font-medium">Prerequisites</label>
-                    <select
+                    <Select
                         id="prerequisites"
                         name="prerequisites"
-                        value={courseData.prerequisites}
-                        onChange={handlePrerequisiteChange}
-                        multiple
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    >
-                        {staticPrerequisites.map((prereq) => (
-                            <option key={prereq.value} value={prereq.value}>
-                                {prereq.label}
-                            </option>
-                        ))}
-                    </select>
+                        options={staticPrerequisites}
+                        value={staticPrerequisites.filter(option => courseData.prerequisites.includes(option.value))}
+                        onChange={(selectedOptions) => {
+                            setCourseData(prev => ({
+                                ...prev,
+                                prerequisites: selectedOptions.map(option => option.value)
+                            }));
+                        }}
+                        isMulti
+                        className="mt-1 w-full"
+                        classNamePrefix="select"
+                    />
                 </div>
 
                 <button
