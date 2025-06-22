@@ -1,7 +1,4 @@
-// learnsphere-frontend-with-react/src/api/CourseInstanceAPI.js
-// Handles all API calls related to course instances
-
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api';
+const API_BASE_URL = 'http://localhost:8080/api'; // Adjust if needed
 
 export async function createInstance(instanceData) {
   const response = await fetch(`${API_BASE_URL}/instances`, {
@@ -36,5 +33,4 @@ export async function deleteInstance(year, semester, id) {
     const error = await response.json();
     throw new Error(error.message || 'Failed to delete instance');
   }
-  return response.json();
 }
