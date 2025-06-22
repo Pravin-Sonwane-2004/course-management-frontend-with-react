@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { getAllCourses, createCourse, deleteCourse } from '../api/CourseAPI';
+import { getAllCourses, createCourse, deleteCourse } from '../../api/CourseAPI';
 import CourseForm from './CourseForm';
 import CourseList from './CourseList';
-import Notification from './Notification';
+import Notification from '../Notification';
 
 export default function CourseManagement() {
   const [courses, setCourses] = useState([]);

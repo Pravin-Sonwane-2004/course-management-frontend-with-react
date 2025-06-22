@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { getAllCourses } from '../api/CourseAPI';
-import { getInstancesByYearSemester, createInstance, deleteInstance, getInstanceById } from '../api/CourseInstanceAPI';
+import { getAllCourses } from '../../api/CourseAPI';
+import { getInstancesByYearSemester, createInstance, deleteInstance, getInstanceById } from '../../api/CourseInstanceAPI';
 import InstanceForm from './InstanceForm';
 import InstanceList from './InstanceList';
 import InstanceDetails from './InstanceDetails';
-import Notification from './Notification';
+import Notification from '../Notification';
 
 export default function CourseInstanceManagement() {
   const [courses, setCourses] = useState([]);

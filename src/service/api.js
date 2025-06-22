@@ -42,3 +42,9 @@ export const getAssignments = () => axios.get(`${BACKEND_API_URL}/assignments`);
 export const getAssignmentFile = (path) => axios.get(`${BACKEND_API_URL}/assignments/getfile/?path=${encodeURI(path)}`);
 export const getAssignmentJs = () => axios.get(`${BACKEND_API_URL}/assignments/getjs`);
 export const deleteAssignment = (id) => axios.delete(`${BACKEND_API_URL}/assignments/${id}`);
+
+// Instance APIs
+export const getInstances = (year, semester) => axios.get(`${BACKEND_API_URL}/instances/${year}/${semester}`);
+export const createInstance = (instanceData) => axios.post(`${BACKEND_API_URL}/instances`, instanceData);
+export const deleteInstance = (year, semester, id) => axios.delete(`${BACKEND_API_URL}/instances/${year}/${semester}/${id}`);
+export const getAllInstances = () => axios.get(`${BACKEND_API_URL}/instances`);

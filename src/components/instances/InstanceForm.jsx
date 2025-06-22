@@ -10,7 +10,7 @@ export default function InstanceForm({ onSuccess, courses }) {
   const [submitting, setSubmitting] = useState(false);
 
   const yearOptions = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
-  const semesterOptions = [1, 2, 3, 4, 5, 6, 7, 8];
+  const semesterOptions = [1, 2];
 
   const validate = () => {
     const errs = {};
@@ -32,7 +32,6 @@ export default function InstanceForm({ onSuccess, courses }) {
     if (Object.keys(errs).length > 0) return;
     setSubmitting(true);
     try {
-      // Ensure all fields are sent as numbers
       await onSuccess({
         courseId: Number(form.courseId),
         year: Number(form.year),

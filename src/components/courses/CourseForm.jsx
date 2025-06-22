@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-export default function CourseForm({ onSubmit, initial = {}, allCourses = [] }) {
+export default function CourseForm({ onSubmit = () => {}, initial = {}, allCourses = [], loading }) {
   const [form, setForm] = useState({
     courseId: initial.courseId || '',
     name: initial.name || '',
@@ -9,10 +9,21 @@ export default function CourseForm({ onSubmit, initial = {}, allCourses = [] }) 
   });
   const [errors, setErrors] = useState({});
 
+  useEffect(() => {
+    setForm({
+      courseId: initial.courseId || '',
+      name: initial.name || '',
+      description: initial.description || '',
+      prerequisites: initial.prerequisites || [],
+    });
+  }, [initial]);
+
   const validate = () => {
     const errs = {};
-    if (!form.courseId || isNaN(Number(form.courseId))) errs.courseId = 'Course ID is required and must be a number';
-    if (!form.name) errs.name = 'Name is required';
+    if (!form.courseId || isNaN(Number(form.courseId)) || !/^\d+$/.test(form.courseId)) {
+      errs.courseId = 'Course ID is required and must be a valid number';
+    }
+    if (!form.name) errs.name = 'Title is required';
     if (!form.description) errs.description = 'Description is required';
     return errs;
   };
@@ -41,49 +52,50 @@ export default function CourseForm({ onSubmit, initial = {}, allCourses = [] }) 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <div>
-        <label className="block font-medium">Course ID<span style={{ color: 'red' }}>*</span></label>
+    <form onSubmit={handleSubmit} className="mb-4">
+      <div className="mb-3">
+        <label className="form-label">Course ID*</label>
         <input
           type="number"
           name="courseId"
           value={form.courseId}
           onChange={handleChange}
-          className="border rounded px-2 py-1 w-full"
-          required
+          className={`form-control${errors.courseId ? ' is-invalid' : ''}`}
+          disabled={loading}
         />
-        {errors.courseId && <div className="text-red-600 text-sm">{errors.courseId}</div>}
+        {errors.courseId && <div className="invalid-feedback">{errors.courseId}</div>}
       </div>
-      <div>
-        <label className="block font-medium">Name<span style={{ color: 'red' }}>*</span></label>
+      <div className="mb-3">
+        <label className="form-label">Title*</label>
         <input
           type="text"
           name="name"
           value={form.name}
           onChange={handleChange}
-          className="border rounded px-2 py-1 w-full"
-          required
+          className={`form-control${errors.name ? ' is-invalid' : ''}`}
+          disabled={loading}
         />
-        {errors.name && <div className="text-red-600 text-sm">{errors.name}</div>}
+        {errors.name && <div className="invalid-feedback">{errors.name}</div>}
       </div>
-      <div>
-        <label className="block font-medium">Description<span style={{ color: 'red' }}>*</span></label>
+      <div className="mb-3">
+        <label className="form-label">Description*</label>
         <textarea
           name="description"
           value={form.description}
           onChange={handleChange}
-          className="border rounded px-2 py-1 w-full"
-          required
+          className={`form-control${errors.description ? ' is-invalid' : ''}`}
+          disabled={loading}
         />
-        {errors.description && <div className="text-red-600 text-sm">{errors.description}</div>}
+        {errors.description && <div className="invalid-feedback">{errors.description}</div>}
       </div>
-      <div>
-        <label className="block font-medium">Prerequisites</label>
+      <div className="mb-3">
+        <label className="form-label">Prerequisites (multi-select)</label>
         <select
           multiple
           value={form.prerequisites}
           onChange={handlePrereqChange}
-          className="border rounded px-2 py-1 w-full"
+          className="form-control"
+          disabled={loading}
         >
           {allCourses
             .filter(c => String(c.courseId) !== String(form.courseId))
@@ -96,9 +108,10 @@ export default function CourseForm({ onSubmit, initial = {}, allCourses = [] }) 
       </div>
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+        className="btn btn-primary"
+        disabled={loading}
       >
-        Submit
+        {loading ? 'Submitting...' : 'Submit'}
       </button>
     </form>
   );
