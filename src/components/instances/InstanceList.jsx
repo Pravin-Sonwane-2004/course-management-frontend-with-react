@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../api/api';
+import InstanceForm from './InstanceForm';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const InstanceList = () => {
   const [year, setYear] = useState('');
@@ -8,9 +11,58 @@ const InstanceList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [editInstance, setEditInstance] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    api.getAllCourses().then(setCourses).catch(() => setCourses([]));
+  }, []);
+
+  const handleAdd = () => {
+    setEditInstance(null);
+    setShowModal(true);
+  };
+  const handleEdit = (instance) => {
+    setEditInstance(instance);
+    setShowModal(true);
+  };
+  const handleModalClose = () => {
+    setShowModal(false);
+    setEditInstance(null);
+  };
+  const handleSave = async (form) => {
+    setSaving(true);
+    try {
+      // Always send only the required fields
+      const instanceData = {
+        courseId: form.courseId,
+        year: parseInt(form.year),
+        semester: parseInt(form.semester)
+      };
+      await api.createInstance(instanceData);
+      toast.success(editInstance ? 'Instance updated successfully' : 'Instance added successfully');
+      handleModalClose();
+      fetchInstances();
+    } catch (e) {
+      toast.error(e.message || 'Failed to save instance');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+
   const fetchInstances = async () => {
     if (!year || !semester || isNaN(parseInt(year)) || isNaN(parseInt(semester))) {
-      setError('Please select a valid year and semester');
+      setError('Please enter valid year (1900-2100) and semester (1 or 2)');
+      setInstances([]);
+      return;
+    }
+    
+    if (parseInt(year) < 1900 || parseInt(year) > 2100 || parseInt(semester) < 1 || parseInt(semester) > 2) {
+      setError('Invalid year or semester. Year must be between 1900-2100 and semester must be 1 or 2');
       setInstances([]);
       return;
     }
@@ -18,13 +70,13 @@ const InstanceList = () => {
     setLoading(true);
     setError('');
     try {
-      const instances = await api.getInstancesByYearSem(year, semester);
-      if (instances && Array.isArray(instances)) {
-        setInstances(instances);
-      } else if (instances === undefined || instances === null) {
+      const response = await api.getInstancesByYearSem(year, semester);
+      if (response && Array.isArray(response)) {
+        setInstances(response);
+      } else if (response === undefined || response === null) {
         setInstances([]);
       } else {
-        throw new Error('Invalid response format');
+        throw new Error('Invalid response format from server');
       }
     } catch (error) {
       if (error.code === 'ERR_NETWORK') {
@@ -39,7 +91,6 @@ const InstanceList = () => {
 
   const handleDelete = async (year, semester, courseId) => {
     const instanceId = `${courseId}-${year}-${semester}`;
-    const inUseMessage = 'Cannot delete course instance as it is still in use';
     
     if (!window.confirm(
       `Are you sure you want to delete this instance?
@@ -48,35 +99,42 @@ const InstanceList = () => {
       Year: ${year}
       Semester: ${semester}
       
-      Warning: This instance may be in use by students or other courses.`
-    )) return;
-
+      This action cannot be undone. Proceed?`
+    )) {
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
     try {
-      const success = await api.deleteInstance(year, semester, courseId);
-      if (success) {
-        setInstances(prev =>
-          prev.filter(
-            inst =>
-              inst.year !== year ||
-              inst.semester !== semester ||
-              inst.courseId !== courseId
-          )
-        );
+      const response = await api.deleteInstance(year, semester, courseId);
+      if (response === true) {
+        // Remove the deleted instance from the list
+        setInstances(prev => prev.filter(inst => 
+          inst.courseId !== courseId || inst.year !== year || inst.semester !== semester
+        ));
+        toast.success('Instance deleted successfully');
       } else {
         throw new Error('Failed to delete instance');
       }
     } catch (error) {
-      if (error.message === inUseMessage) {
-        alert(`Cannot delete this instance because it's still in use.\n\n` +
-              `Please check if this instance is associated with any:\n` +
-              `- Student enrollments\n` +
-              `- Course prerequisites\n` +
-              `- Course schedules\n\n` +
-              `Remove these associations first before deleting.`);
+      console.error('Error deleting instance:', error);
+      if (error.response) {
+        if (error.response.status === 409) {
+          alert(`Cannot delete this instance because it's still in use.\n\n` +
+                `Please check if this instance is associated with any:\n` +
+                `- Student enrollments\n` +
+                `- Course prerequisites\n` +
+                `- Course schedules\n\n` +
+                `Remove these associations first before deleting.`);
+        } else {
+          setError(error.response.data?.message || error.response.statusText || 'Failed to delete instance');
+        }
       } else {
         setError(error.message || 'Failed to delete instance');
-        alert(error.message);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -119,6 +177,12 @@ const InstanceList = () => {
         >
           Search
         </button>
+        <button
+          onClick={handleAdd}
+          className="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+        >
+          Add Instance
+        </button>
       </div>
 
       {error && (
@@ -152,7 +216,11 @@ const InstanceList = () => {
                   <td className="px-6 py-4 whitespace-nowrap">{instance.courseId}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{instance.year}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{instance.semester}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 whitespace-nowrap flex gap-2">
+                    <button
+                      onClick={() => handleEdit(instance)}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+                    >Edit</button>
                     <button
                       onClick={() => handleDelete(instance.year, instance.semester, instance.courseId)}
                       className="text-red-600 hover:text-red-900"
@@ -166,7 +234,21 @@ const InstanceList = () => {
           </table>
         </div>
       )}
-    </div>
+    {/* Modal for Add/Edit Instance */}
+    {showModal && (
+      <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-lg p-8 min-w-[400px] relative">
+          <button className="absolute top-2 right-2 text-gray-500 hover:text-black" onClick={handleModalClose}>&times;</button>
+          <InstanceForm
+            onSuccess={handleSave}
+            courses={courses}
+            initial={editInstance || {}}
+            loading={saving}
+          />
+        </div>
+      </div>
+    )}
+  </div>
   );
 };
 

@@ -36,8 +36,8 @@ export default function CourseDropdown({ onSelect, value, label = 'Select Course
       >
         <option value="" disabled>Select a course</option>
         {courses.map(course => (
-          <option key={course.id || course.code || course.name} value={course.id || course.code || course.name}>
-            {course.name || course.title || course.code}
+          <option key={course.id || course.code || course.name || course.courseName} value={course.id || course.code || course.name || course.courseName}>
+            {course.name || course.courseName || course.title || course.code}
           </option>
         ))}
       </select>

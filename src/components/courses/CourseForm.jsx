@@ -63,7 +63,7 @@ export default function CourseForm({ onSubmit = () => {}, initial = {}, allCours
             name="courseId"
             value={form.courseId}
             onChange={handleChange}
-            className={`w-full px-5 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 ${
+            className={`w-full px-5 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 ${
               errors.courseId ? 'border-red-600' : ''
             }`}
             disabled={loading}
@@ -83,7 +83,7 @@ export default function CourseForm({ onSubmit = () => {}, initial = {}, allCours
             name="name"
             value={form.name}
             onChange={handleChange}
-            className={`w-full px-5 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 ${
+            className={`w-full px-5 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 ${
               errors.name ? 'border-red-600' : ''
             }`}
             disabled={loading}
@@ -102,7 +102,7 @@ export default function CourseForm({ onSubmit = () => {}, initial = {}, allCours
             name="description"
             value={form.description}
             onChange={handleChange}
-            className={`w-full px-5 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 ${
+            className={`w-full px-5 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 ${
               errors.description ? 'border-red-600' : ''
             }`}
             disabled={loading}
@@ -122,7 +122,7 @@ export default function CourseForm({ onSubmit = () => {}, initial = {}, allCours
             multiple
             value={form.prerequisites}
             onChange={handlePrereqChange}
-            className={`w-full px-5 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 ${
+            className={`w-full px-5 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 ${
               errors.prerequisites ? 'border-red-600' : ''
             }`}
             disabled={loading}
@@ -146,7 +146,7 @@ export default function CourseForm({ onSubmit = () => {}, initial = {}, allCours
         <button
           type="submit"
           disabled={loading}
-          className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           {loading ? 'Saving...' : 'Create Course'}
         </button>

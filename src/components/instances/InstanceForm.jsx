@@ -15,8 +15,8 @@ export default function InstanceForm({ onSuccess, courses }) {
   const validate = () => {
     const errs = {};
     if (!form.courseId) errs.courseId = 'Course is required';
-    if (!form.year) errs.year = 'Year is required';
-    if (!form.semester) errs.semester = 'Semester is required';
+    if (!form.year || form.year < 2000 || form.year > 2100) errs.year = 'Year must be between 2000 and 2100';
+    if (![1,2].includes(Number(form.semester))) errs.semester = 'Semester must be 1 or 2';
     return errs;
   };
 
@@ -33,11 +33,20 @@ export default function InstanceForm({ onSuccess, courses }) {
     setSubmitting(true);
     try {
       await onSuccess({
-        courseId: Number(form.courseId),
+        courseId: form.courseId, // keep as string to match backend DTO
         year: Number(form.year),
         semester: Number(form.semester),
       });
       setForm({ courseId: '', year: '', semester: '' });
+      if (window.toast) window.toast.success('Course instance created successfully!');
+      if (typeof window.onInstanceFormClose === 'function') window.onInstanceFormClose();
+    } catch (e) {
+      // Show backend error in toast if available
+      if (window.toast) {
+        window.toast.error(e?.response?.data?.message || e.message || 'Failed to create instance');
+      } else if (window.alert) {
+        alert(e?.response?.data?.message || e.message || 'Failed to create instance');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -102,9 +111,15 @@ export default function InstanceForm({ onSuccess, courses }) {
         </div>
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 disabled:opacity-50"
+          className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 disabled:opacity-50 flex items-center"
           disabled={submitting}
         >
+          {submitting && (
+            <svg className="animate-spin h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+          )}
           {submitting ? 'Adding...' : 'Add Instance'}
         </button>
       </form>

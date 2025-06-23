@@ -7,118 +7,103 @@ import { api } from '../../api/api';
 
 export default function CourseManagement() {
   const [courses, setCourses] = useState([]);
+  const [availableCourses, setAvailableCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Move fetchInstances to top-level so all handlers can use it
+  // Fetch all courses for the right-side table
+  const fetchCourses = async () => {
+    try {
+      
+      const allCourses = await api.getAllCourses();
+      
+      const formattedCourses = allCourses.map(course => ({
+        id: course.courseId,
+        name: course.name,
+        description: course.description,
+        prerequisites: course.prerequisites || [],
+        key: course.courseId
+      }));
+      setCourses(formattedCourses);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      setLoading(false);
+    }
+  };
+
+  // Fetch all available courses for the prerequisites dropdown
+  const fetchAvailableCourses = async () => {
+    try {
+      
+      const allCourses = await api.getAllCourses();
+      
+      const formattedCourses = allCourses.map(course => ({
+        value: course.courseId,
+        label: `${course.courseId} - ${course.name}`
+      }));
+      
+      setAvailableCourses(formattedCourses);
+    } catch (error) {
+      console.error('Error fetching available courses:', error);
+    }
+  };
+
   useEffect(() => {
-    const handleDeleteCourse = async (instanceId) => {
-      try {
-        // Extract year and semester from instanceId (assuming format: COURSEID_YEAR_SEMESTER)
-        const [courseId, yearStr, semesterStr] = instanceId.split('_');
-        const year = parseInt(yearStr);
-        const semester = parseInt(semesterStr);
-
-        // Delete the instance
-        await api.deleteInstance(year, semester, courseId);
-
-        // Refresh the list after deletion
-        const instances = await api.getInstances();
-        const formattedInstances = instances.map(instance => ({
-          id: instance.courseId,
-          name: instance.course.name,
-          description: instance.course.description,
-          prerequisites: instance.course.prerequisites,
-          instanceId: instance.instanceId,
-          year: instance.year,
-          semester: instance.semester,
-          key: instance.instanceId
-        }));
-        
-        setCourses(formattedInstances);
-      } catch (error) {
-        console.error('Error deleting course instance:', error);
-      }
-    };
-
-    const fetchCourses = async () => {
-      try {
-        const instances = await api.getInstances();
-        const formattedInstances = instances.map(instance => ({
-          id: instance.courseId,
-          name: instance.course.name,
-          description: instance.course.description,
-          prerequisites: instance.course.prerequisites,
-          instanceId: instance.instanceId,
-          year: instance.year,
-          semester: instance.semester,
-          key: instance.instanceId
-        }));
-        
-        setCourses(formattedInstances);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching instances:', error);
-        setLoading(false);
-      }
-    };
-
+    
     fetchCourses();
+    fetchAvailableCourses();
   }, []);
 
   const [searchText, setSearchText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
 
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, setValue } = useForm({
+    defaultValues: {
+      id: '',
+      name: '',
+      description: '',
+      prerequisites: [],
+    }
+  });
 
   const onSubmit = async (data) => {
     try {
-      // First create the course if it doesn't exist
       const courseData = {
         courseId: data.id,
         name: data.name,
         description: data.description,
-        prerequisites: data.prerequisites
+        prerequisites: data.prerequisites || []
       };
-
       await api.createCourse(courseData);
-
-      // Then create the instance
-      const instanceData = {
-        courseId: data.id,
-        year: parseInt(data.year),
-        semester: parseInt(data.semester)
-      };
-
-      await api.createInstance(instanceData);
-
-      // Refresh the list after creating
-      const instances = await api.getInstances();
-      const formattedInstances = instances.map(instance => ({
-        id: instance.courseId,
-        name: instance.course.name,
-        description: instance.course.description,
-        prerequisites: instance.course.prerequisites,
-        instanceId: instance.instanceId,
-        year: instance.year,
-        semester: instance.semester,
-        key: instance.instanceId
-      }));
-      
-      setCourses(formattedInstances);
+      if (window.toast) {
+        window.toast.success('Course created successfully!');
+      } else {
+        alert('Course created successfully!');
+      }
+      await fetchCourses();
     } catch (error) {
-      console.error('Error creating course instance:', error);
+      if (window.toast) {
+        window.toast.error(error.message || 'Error creating course');
+      } else {
+        alert(error.message || 'Error creating course');
+      }
+      console.error('Error creating course:', error);
     }
   };
 
-  // Handle course deletion
-  const handleDeleteCourse = async (id) => {
+  const handleDeleteInstance = async (instanceId) => {
     try {
-      await fetch(`http://localhost:8080/api/courses/delete/${id}`, {
-        method: 'DELETE'
-      });
-      setCourses(courses.filter((course) => course.key !== id));
+      const [courseId, yearStr, semesterStr] = instanceId.split('_');
+      const year = parseInt(yearStr);
+      const semester = parseInt(semesterStr);
+
+      await api.deleteCourseInstance(year, semester, courseId);
+      await fetchCourses();
     } catch (error) {
-      console.error('Error deleting course:', error);
+      console.error('Error deleting course instance:', error);
+      throw error;
     }
   };
 
@@ -157,12 +142,17 @@ export default function CourseManagement() {
             <Select
               {...register('prerequisites')}
               isMulti
-              options={courses.map(course => ({
-                value: course.id,
-                label: `${course.id} - ${course.name}`
-              }))}
+              options={availableCourses || []}
               className="w-full"
               placeholder="Select prerequisites..."
+              onChange={(selected) => {
+                
+                setValue('prerequisites', selected?.map(option => option.value) || []);
+              }}
+              value={register('prerequisites').value?.map(value => {
+                const option = availableCourses?.find(option => option.value === value);
+                return option || null;
+              }).filter(Boolean)}
             />
           </div>
           <div>
@@ -189,7 +179,7 @@ export default function CourseManagement() {
             type="submit"
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            Create Course Instance
+            Create Course
           </button>
         </form>
       </div>
@@ -200,11 +190,12 @@ export default function CourseManagement() {
           <div className="relative">
             <input
               type="text"
-              placeholder="Search courses..."
+              placeholder="Search courses."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              className="w-64 px-2 py-1 pl-8 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-64 px-2 py-1 pl-8 border rounded focus:outline-none"
             />
+        
             <SearchIcon className="absolute left-2 top-1.5 h-4 w-4 text-gray-400" />
           </div>
         </div>
@@ -228,7 +219,7 @@ export default function CourseManagement() {
                   <td className="px-4 py-2 whitespace-nowrap">{instance.name}</td>
                   <td className="px-4 py-2 whitespace-nowrap">{instance.description}</td>
                   <td className="px-4 py-2 whitespace-nowrap">
-                    {instance.prerequisites}
+                    {instance.prerequisites.length > 0 ? instance.prerequisites.join(', ') : 'None'}
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap">{instance.year}</td>
                   <td className="px-4 py-2 whitespace-nowrap">{instance.semester}</td>
@@ -246,7 +237,7 @@ export default function CourseManagement() {
           </table>
         </div>
         <div className="flex justify-between items-center mt-2">
-          <span className="text-xs text-gray-500">Showing 1 to {courses.length} of {courses.length} results</span>
+          <span className="text-xs text-gray-500">Showing {searchText ? 'filtered' : 'all'} courses</span>
           <div className="flex items-center space-x-1">
             <button
               className="px-2 py-1 border rounded hover:bg-gray-50"
@@ -255,10 +246,11 @@ export default function CourseManagement() {
             >
               Previous
             </button>
+            <span className="px-2 py-1 text-xs">Page {currentPage}</span>
             <button
               className="px-2 py-1 border rounded hover:bg-gray-50"
               onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === Math.ceil(courses.length / pageSize)}
+              disabled={false} // We don't have total count for pagination
             >
               Next
             </button>

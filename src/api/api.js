@@ -8,10 +8,10 @@ export const API = {
     CREATE: '/api/courses',
     BY_ID: (id) => `/api/courses/${id}`,
     BY_COURSE_ID: (courseId) => `/api/courses/by-course-id/${courseId}`,
-    DELETE: (id) => `/api/courses/${id}`
+    DELETE: (id) => `/api/courses/delete/${id}`
   },
-  // Instance Endpoints
-  INSTANCES: {
+  // Course Instance Endpoints
+  COURSE_INSTANCES: {
     ALL: '/api/instances',
     CREATE: '/api/instances',
     BY_YEAR_SEM: (year, semester) => `/api/instances/${year}/${semester}`,
@@ -79,6 +79,30 @@ export const api = {
     }
   },
 
+  getAllInstances: async () => {
+    try {
+      const response = await axios.get(API.COURSE_INSTANCES.ALL);
+      const instances = response.data;
+      
+      if (Array.isArray(instances)) {
+        return instances.map(instance => ({
+          instanceId: instance.instanceId,
+          courseId: instance.courseId,
+          year: instance.year,
+          semester: instance.semester,
+          courseName: instance.courseName,
+          courseDescription: instance.courseDescription,
+          coursePrerequisites: instance.coursePrerequisites || []
+        }));
+      }
+      
+      throw new Error('Invalid response format from server');
+    } catch (error) {
+      console.error('Error fetching instances:', error);
+      throw error;
+    }
+  },
+
   deleteCourse: async (courseId) => {
     try {
       const response = await axios.delete(`${API.COURSES.ALL}/${courseId}`);
@@ -137,21 +161,35 @@ export const api = {
     }
   },
 
-  // --- Instance APIs ---
+  // --- Course Instance APIs ---
 
-  getInstances: async () => {
+  createCourseInstance: async (instanceData) => {
     try {
-      const response = await axios.get(API.INSTANCES.ALL);
-      return handleResponse(response);
+      const response = await axios.get(API.COURSE_INSTANCES.ALL);
+      const instances = response.data;
+      
+      if (Array.isArray(instances)) {
+        return instances.map(instance => ({
+          instanceId: instance.instanceId,
+          courseId: instance.courseId,
+          year: instance.year,
+          semester: instance.semester,
+          courseName: instance.courseName,
+          courseDescription: instance.courseDescription,
+          coursePrerequisites: instance.coursePrerequisites || []
+        }));
+      }
+      
+      throw new Error('Invalid response format from server');
     } catch (error) {
-      console.error('Error fetching all instances:', error);
+      console.error('Error fetching instances:', error);
       throw error;
     }
   },
 
   createInstance: async (instanceData) => {
     try {
-      const response = await axios.post(API.INSTANCES.CREATE, {
+      const response = await axios.post(API.COURSE_INSTANCES.CREATE, {
         courseId: instanceData.courseId,
         year: parseInt(instanceData.year),
         semester: parseInt(instanceData.semester)
@@ -168,7 +206,7 @@ export const api = {
       if (isNaN(year) || isNaN(semester)) {
         throw new Error('Invalid year or semester value');
       }
-      const response = await axios.get(API.INSTANCES.BY_YEAR_SEM(year, semester));
+      const response = await axios.get(API.COURSE_INSTANCES.BY_YEAR_SEM(year, semester));
       const instances = handleResponse(response);
 
       // Optional: Normalize if needed
@@ -189,7 +227,7 @@ export const api = {
 
   getInstanceByYearSemCourse: async (year, semester, courseId) => {
     try {
-      const response = await axios.get(API.INSTANCES.BY_YEAR_SEM_COURSE(year, semester, courseId));
+      const response = await axios.get(API.COURSE_INSTANCES.BY_YEAR_SEM_COURSE(year, semester, courseId));
       return handleResponse(response);
     } catch (error) {
       console.error('Error fetching instance by year/semester/course:', error);
@@ -199,7 +237,7 @@ export const api = {
 
   deleteInstance: async (year, semester, courseId) => {
     try {
-      const response = await axios.delete(API.INSTANCES.DELETE(year, semester, courseId));
+      const response = await axios.delete(API.COURSE_INSTANCES.DELETE(year, semester, courseId));
       if (response.status === 200) {
         return true;
       } else if (response.status === 404) {

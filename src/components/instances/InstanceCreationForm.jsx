@@ -49,7 +49,7 @@ const InstanceCreationForm = () => {
         setError('');
 
         try {
-            await api.createInstance(instanceData);
+            await api.createCourseInstance(instanceData);
             setInstanceData({
                 courseId: '',
                 year: '',
