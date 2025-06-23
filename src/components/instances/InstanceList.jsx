@@ -87,84 +87,86 @@ const InstanceList = () => {
   }, [year, semester]);
 
   return (
-    <>
-      <div className="card">
-        <h2>Course Instances</h2>
-        {error && <div className="alert alert-danger">{error}</div>}
-
-        <div className="flex gap-4 mb-4">
-          <div className="flex-1">
-            <label htmlFor="year" className="block text-sm font-medium">Year</label>
-            <input
-              type="number"
-              id="year"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex-1">
-            <label htmlFor="semester" className="block text-sm font-medium">Semester</label>
-            <select
-              id="semester"
-              value={semester}
-              onChange={(e) => setSemester(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            >
-              <option value="">Select semester</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-            </select>
-          </div>
-          <button
-            onClick={fetchInstances}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            Search
-          </button>
+    <div className="w-full px-8 py-6">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex-1">
+          <label htmlFor="year" className="block text-sm font-medium">Year</label>
+          <input
+            type="number"
+            id="year"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            placeholder="Enter year"
+          />
         </div>
-
-        {loading ? (
-          <div className="text-center py-4">Loading...</div>
-        ) : instances.length === 0 ? (
-          <div className="text-center py-4 text-gray-500">
-            No course instances found for the selected year and semester
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Instance ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Semester</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {instances.map((instance) => (
-                  <tr key={instance.instanceId}>
-                    <td className="px-6 py-4 whitespace-nowrap">{instance.instanceId}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{instance.courseId}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{instance.year}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{instance.semester}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => handleDelete(instance.year, instance.semester, instance.courseId)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <div className="flex-1">
+          <label htmlFor="semester" className="block text-sm font-medium">Semester</label>
+          <select
+            id="semester"
+            value={semester}
+            onChange={(e) => setSemester(e.target.value)}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="">Select semester</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+        </div>
+        <button
+          onClick={fetchInstances}
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Search
+        </button>
       </div>
-    </>
+
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+          <p>{error}</p>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="text-center py-4">Loading...</div>
+      ) : instances.length === 0 ? (
+        <div className="text-center py-4 text-gray-500">
+          No course instances found for the selected year and semester
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Instance ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Semester</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {instances.map((instance) => (
+                <tr key={instance.instanceId}>
+                  <td className="px-6 py-4 whitespace-nowrap">{instance.instanceId}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{instance.courseId}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{instance.year}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{instance.semester}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button
+                      onClick={() => handleDelete(instance.year, instance.semester, instance.courseId)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 };
 

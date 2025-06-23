@@ -19,18 +19,19 @@ const InstanceCreationForm = () => {
 
     const fetchCourses = async () => {
         try {
-            const response = await api.getAllCourses();
-            if (response.status === 200) {
-                const formattedCourses = response.data.map(course => ({
+            const courses = await api.getAllCourses();
+            if (Array.isArray(courses)) {
+                const formattedCourses = courses.map(course => ({
                     value: course.courseId,
                     label: `${course.courseId} - ${course.name}`
                 }));
                 setCourses(formattedCourses);
             } else {
-                setError('Failed to fetch courses');
+                throw new Error('Invalid response format from server');
             }
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Error fetching courses');
+            setError(err.message || 'Failed to fetch courses');
+            console.error('Error fetching courses:', err);
         }
     };
 
@@ -48,27 +49,27 @@ const InstanceCreationForm = () => {
         setError('');
 
         try {
-            const response = await api.createInstance(instanceData);
-            if (response) {
-                setInstanceData({
-                    courseId: '',
-                    year: '',
-                    semester: ''
-                });
-                toast.success('Instance created successfully!');
-            } else {
-                toast.error('Failed to create instance');
-            }
+            await api.createInstance(instanceData);
+            setInstanceData({
+                courseId: '',
+                year: '',
+                semester: ''
+            });
+            toast.success('Instance created successfully!');
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to create instance');
+            setError(err.message || 'Failed to create instance');
+            console.error('Error creating instance:', err);
+            toast.error(err.message || 'Failed to create instance');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="card">
-            <h2>Create Course Instance</h2>
+        <div className="w-full">
+            <div className="px-8 py-6">
+                <h2>Create Course Instance</h2>
+            </div>
             {error && <div className="alert alert-danger">{error}</div>}
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>

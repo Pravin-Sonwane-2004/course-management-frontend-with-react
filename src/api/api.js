@@ -22,14 +22,32 @@ export const API = {
 
 // Axios global config
 axios.defaults.baseURL = 'http://localhost:8080';
-axios.defaults.withCredentials = true;
+// Remove withCredentials as we don't need it
+axios.defaults.withCredentials = false;
+
+// Add CORS headers
+axios.interceptors.request.use(config => {
+  config.headers['Access-Control-Allow-Origin'] = '*';
+  config.headers['Access-Control-Allow-Credentials'] = 'true';
+  return config;
+}, error => {
+  return Promise.reject(error);
+});
 
 // Handle response safely
 const handleResponse = (response) => {
-  if (!response || response.status >= 400) {
-    throw new Error(response.statusText || 'Unknown error');
+  if (!response) {
+    throw new Error('No response received');
   }
-  return response.data;
+  
+  // Axios response object has these properties
+  const { status, data, statusText } = response;
+  
+  if (status >= 400) {
+    throw new Error(data?.message || statusText || 'Unknown error');
+  }
+  
+  return data;
 };
 
 // API Functions
@@ -39,9 +57,37 @@ export const api = {
   getAllCourses: async () => {
     try {
       const response = await axios.get(API.COURSES.ALL);
-      return handleResponse(response);
+      const courses = response.data;
+      
+      // Normalize the response data
+      if (Array.isArray(courses)) {
+        return courses.map(course => ({
+          courseId: course.courseId,
+          name: course.name,
+          description: course.description,
+          prerequisites: course.prerequisites ? course.prerequisites.map(p => p.courseId) : []
+        }));
+      }
+      
+      throw new Error('Invalid response format from server');
     } catch (error) {
       console.error('Error fetching courses:', error);
+      if (error.code === 'ERR_NETWORK') {
+        throw new Error('Backend server is not running. Please start the Spring Boot server.');
+      }
+      throw error;
+    }
+  },
+
+  deleteCourse: async (courseId) => {
+    try {
+      const response = await axios.delete(`${API.COURSES.ALL}/${courseId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
       throw error;
     }
   },
@@ -133,7 +179,10 @@ export const api = {
         semester: instance.semester
       }));
     } catch (error) {
-      console.error('Error fetching instances by year/semester:', error);
+      console.error('Error fetching instances by year and semester:', error);
+      if (error.code === 'ERR_NETWORK') {
+        throw new Error('Backend server is not running. Please start the Spring Boot server.');
+      }
       throw error;
     }
   },
@@ -151,10 +200,21 @@ export const api = {
   deleteInstance: async (year, semester, courseId) => {
     try {
       const response = await axios.delete(API.INSTANCES.DELETE(year, semester, courseId));
-      return handleResponse(response);
+      if (response.status === 200) {
+        return true;
+      } else if (response.status === 404) {
+        throw new Error('Instance not found');
+      } else if (response.status === 409) {
+        throw new Error('Cannot delete instance as it is still in use');
+      } else {
+        throw new Error(response.data?.message || response.statusText || 'Failed to delete instance');
+      }
     } catch (error) {
       console.error('Error deleting instance:', error);
-      throw error;
+      if (error.response) {
+        throw new Error(error.response.data?.message || error.response.statusText || 'Failed to delete instance');
+      }
+      throw new Error(error.message || 'Failed to delete instance');
     }
   }
 };

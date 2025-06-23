@@ -17,17 +17,18 @@ const CourseList = () => {
     const [deletingId, setDeletingId] = useState(null);
 
     useEffect(() => {
-        api.getAllCourses().then(setCourses).catch(error => setError(error.message));
+        fetchCourses();
     }, []);
 
     useEffect(() => {
         const filtered = courses.filter(course => {
             if (!course) return false;
-            const nameMatch = (course.name || '').toLowerCase().includes(searchTerm.toLowerCase());
-            const descriptionMatch = (course.description || '').toLowerCase().includes(searchTerm.toLowerCase());
-            const prerequisitesMatch = course.prerequisites && course.prerequisites.some(prereqId => 
-                prereqId.toLowerCase().includes(searchTerm.toLowerCase())
-            );
+            const searchTermLower = searchTerm.toLowerCase();
+            const nameMatch = (course.name || '').toLowerCase().includes(searchTermLower);
+            const descriptionMatch = (course.description || '').toLowerCase().includes(searchTermLower);
+            const prerequisitesMatch = course.prerequisites?.some(prereqId => 
+                typeof prereqId === 'string' && prereqId.toLowerCase().includes(searchTermLower)
+            ) || false;
             return nameMatch || descriptionMatch || prerequisitesMatch;
         });
         setFilteredCourses(filtered);
@@ -47,6 +48,8 @@ const CourseList = () => {
 
     const fetchCourses = async () => {
         try {
+            setLoading(true);
+            setError('');
             const courses = await api.getAllCourses();
             if (Array.isArray(courses)) {
                 setCourses(courses);
@@ -54,9 +57,10 @@ const CourseList = () => {
             } else {
                 throw new Error('Invalid response format from server');
             }
-            setLoading(false);
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to fetch courses');
+            setError(err.message || 'Failed to fetch courses');
+            console.error('Error fetching courses:', err);
+        } finally {
             setLoading(false);
         }
     };
@@ -65,13 +69,9 @@ const CourseList = () => {
         if (window.confirm(`Are you sure you want to delete course ${course.name}?`)) {
             setDeletingId(course.courseId);
             try {
-                const response = await deleteCourse(course.courseId);
-                if (response) {
-                    await fetchCourses();
-                    toast.success('Course deleted successfully');
-                } else {
-                    toast.error('Error deleting course');
-                }
+                await api.deleteCourse(course.courseId);
+                await fetchCourses();
+                toast.success('Course deleted successfully');
             } catch (error) {
                 console.error('Error deleting course:', error);
                 toast.error('Error deleting course: ' + error.message);
@@ -82,8 +82,8 @@ const CourseList = () => {
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex justify-between items-center mb-6">
+        <div className="w-full">
+            <div className="flex justify-between items-center mb-6 px-8 py-6">
                 <div className="flex items-center space-x-4">
                     <h2 className="text-2xl font-bold text-gray-800">Courses</h2>
                     <span className="text-sm text-gray-500">Manage your courses here</span>

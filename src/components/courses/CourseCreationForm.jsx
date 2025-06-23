@@ -83,8 +83,10 @@ const CourseCreationForm = () => {
 
 
     return (
-        <div className="card">
-            <h2>Create New Course</h2>
+        <div className="w-full">
+            <div className="px-8 py-6">
+                <h2>Create New Course</h2>
+            </div>
             {error && <div className="alert alert-danger">{error}</div>}
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
