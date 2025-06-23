@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { createCourse } from '../../api/api';
+import { api } from '../../api/api';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
 
 // Static data for testing
@@ -42,7 +44,7 @@ const CourseCreationForm = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await createCourse({
+            const response = await api.createCourse({
                 courseId: courseData.courseId,
                 name: courseData.name,
                 description: courseData.description,
@@ -58,14 +60,21 @@ const CourseCreationForm = () => {
                     description: '',
                     prerequisites: []
                 });
-                setError('Course created successfully!');
+                toast.success('Course created successfully!');
+                setCourseData({
+                    courseId: '',
+                    name: '',
+                    description: '',
+                    prerequisites: []
+                });
+                alert('Course created successfully!');
             } else {
-                setError('Failed to create course');
+                toast.error('Failed to create course');
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to create course');
             if (err.response?.status === 409) {
-                setError('Course with this ID already exists. Please use a different ID.');
+                toast.error('Course with this ID already exists. Please use a different ID.');
             }
         } finally {
             setLoading(false);
@@ -124,10 +133,12 @@ const CourseCreationForm = () => {
                         options={staticPrerequisites}
                         value={staticPrerequisites.filter(option => courseData.prerequisites.includes(option.value))}
                         onChange={(selectedOptions) => {
-                            setCourseData(prev => ({
-                                ...prev,
-                                prerequisites: selectedOptions.map(option => option.value)
-                            }));
+                            api.createCourse(courseData).then(() => {
+                                setCourseData(prev => ({
+                                    ...prev,
+                                    prerequisites: selectedOptions.map(option => option.value)
+                                }));
+                            });
                         }}
                         isMulti
                         className="mt-1 w-full"

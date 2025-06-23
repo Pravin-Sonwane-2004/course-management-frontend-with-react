@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllCourses, deleteCourse } from '../../api/CourseAPI';
+import { api } from '../../api/api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Search, ArrowUp, ArrowDown } from 'react-feather';
@@ -17,7 +17,7 @@ const CourseList = () => {
     const [deletingId, setDeletingId] = useState(null);
 
     useEffect(() => {
-        fetchCourses();
+        api.getAllCourses().then(setCourses).catch(error => setError(error.message));
     }, []);
 
     useEffect(() => {
@@ -47,7 +47,7 @@ const CourseList = () => {
 
     const fetchCourses = async () => {
         try {
-            const courses = await getAllCourses();
+            const courses = await api.getAllCourses();
             if (Array.isArray(courses)) {
                 setCourses(courses);
                 setFilteredCourses(courses);

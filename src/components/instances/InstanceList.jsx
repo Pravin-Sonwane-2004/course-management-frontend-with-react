@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getInstancesByYearSemester, deleteInstance } from '../../api/CourseInstanceAPI';
+import { api } from '../../api/api';
 
 const InstanceList = () => {
   const [year, setYear] = useState('');
@@ -18,10 +18,10 @@ const InstanceList = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await getInstancesByYearSemester(parseInt(year), parseInt(semester));
-      if (response && Array.isArray(response)) {
-        setInstances(response);
-      } else if (response === undefined || response === null) {
+      const instances = await api.getInstancesByYearSem(year, semester);
+      if (instances && Array.isArray(instances)) {
+        setInstances(instances);
+      } else if (instances === undefined || instances === null) {
         setInstances([]);
       } else {
         throw new Error('Invalid response format');
@@ -52,7 +52,7 @@ const InstanceList = () => {
     )) return;
 
     try {
-      const success = await deleteInstance(year, semester, courseId);
+      const success = await api.deleteInstance(year, semester, courseId);
       if (success) {
         setInstances(prev =>
           prev.filter(

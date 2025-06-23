@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { getCourses, createInstance } from '../../api/api';
+import { api } from '../../api/api';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const InstanceCreationForm = () => {
     const [instanceData, setInstanceData] = useState({
@@ -17,7 +19,7 @@ const InstanceCreationForm = () => {
 
     const fetchCourses = async () => {
         try {
-            const response = await getCourses();
+            const response = await api.getAllCourses();
             if (response.status === 200) {
                 const formattedCourses = response.data.map(course => ({
                     value: course.courseId,
@@ -28,7 +30,7 @@ const InstanceCreationForm = () => {
                 setError('Failed to fetch courses');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Error fetching courses');
+            toast.error(err.response?.data?.message || 'Error fetching courses');
         }
     };
 
@@ -46,21 +48,16 @@ const InstanceCreationForm = () => {
         setError('');
 
         try {
-            const response = await createInstance({
-                courseId: instanceData.courseId,
-                year: parseInt(instanceData.year),
-                semester: parseInt(instanceData.semester)
-            });
-
-            if (response.status === 200) {
+            const response = await api.createInstance(instanceData);
+            if (response) {
                 setInstanceData({
                     courseId: '',
                     year: '',
                     semester: ''
                 });
-                setError('Instance created successfully!');
+                toast.success('Instance created successfully!');
             } else {
-                setError('Failed to create instance');
+                toast.error('Failed to create instance');
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to create instance');
