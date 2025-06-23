@@ -2,8 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import Home from './components/Home';
-import CourseManagementPage from './pages/CourseManagementPage';
-import InstanceManagementPage from './pages/InstanceManagementPage';
+import CourseManagement from "./components/courses/CourseManagement";
+import InstanceList from "./components/instances/InstanceList";
 
 function App() {
   return (
@@ -11,8 +11,8 @@ function App() {
       <NavBar />
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/courses" element={<CourseManagementPage />} />
-                <Route path="/instances" element={<InstanceManagementPage />} />
+                <Route path="/courses" element={<CourseManagement />} />
+                <Route path="/instances" element={<InstanceList />} />
               </Routes>
     </Router>
   );

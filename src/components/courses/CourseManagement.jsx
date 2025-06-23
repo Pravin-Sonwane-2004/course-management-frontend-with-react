@@ -93,19 +93,32 @@ export default function CourseManagement() {
     }
   };
 
-  const handleDeleteInstance = async (instanceId) => {
+  // Only instance deletion is supported by the backend
+const handleDeleteInstance = async (courseId, year, semester) => {
     try {
-      const [courseId, yearStr, semesterStr] = instanceId.split('_');
-      const year = parseInt(yearStr);
-      const semester = parseInt(semesterStr);
-
-      await api.deleteCourseInstance(year, semester, courseId);
+      const y = parseInt(year, 10);
+      const s = parseInt(semester, 10);
+      if (!courseId || isNaN(y) || isNaN(s)) {
+        if (window.toast) {
+          window.toast.error('Invalid course, year, or semester for deletion.');
+        } else {
+          alert('Invalid course, year, or semester for deletion.');
+        }
+        return;
+      }
+      await api.deleteCourseInstance(y, s, courseId);
       await fetchCourses();
     } catch (error) {
       console.error('Error deleting course instance:', error);
-      throw error;
+      if (window.toast) {
+        window.toast.error(error.message || 'Error deleting course instance');
+      } else {
+        alert(error.message || 'Error deleting course instance');
+      }
     }
   };
+
+
 
   return (
     <div className="flex gap-6">
@@ -221,11 +234,11 @@ export default function CourseManagement() {
                   <td className="px-4 py-2 whitespace-nowrap">
                     {instance.prerequisites.length > 0 ? instance.prerequisites.join(', ') : 'None'}
                   </td>
-                  <td className="px-4 py-2 whitespace-nowrap">{instance.year}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{instance.semester}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{instance.year || ''}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{instance.semester || ''}</td>
                   <td className="px-4 py-2 whitespace-nowrap">
                     <button
-                      onClick={() => handleDeleteInstance(instance.key)}
+                      onClick={() => handleDeleteInstance(instance.id, instance.year, instance.semester)}
                       className="text-red-500 hover:text-red-700"
                     >
                       <TrashIcon className="h-4 w-4" />

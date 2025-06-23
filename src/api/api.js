@@ -8,7 +8,7 @@ export const API = {
     CREATE: '/api/courses',
     BY_ID: (id) => `/api/courses/${id}`,
     BY_COURSE_ID: (courseId) => `/api/courses/by-course-id/${courseId}`,
-    DELETE: (id) => `/api/courses/delete/${id}`
+
   },
   // Course Instance Endpoints
   COURSE_INSTANCES: {
@@ -52,6 +52,10 @@ const handleResponse = (response) => {
 
 // API Functions
 export const api = {
+  // Proxy for compatibility with old code
+  deleteCourseInstance: async (year, semester, courseId) => {
+    return await api.deleteInstance(year, semester, courseId);
+  },
   // --- Course APIs ---
 
   getAllCourses: async () => {
@@ -103,18 +107,7 @@ export const api = {
     }
   },
 
-  deleteCourse: async (courseId) => {
-    try {
-      const response = await axios.delete(`${API.COURSES.ALL}/${courseId}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error deleting course:', error);
-      if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
-      }
-      throw error;
-    }
-  },
+
 
   createCourse: async (courseData) => {
     try {
@@ -151,15 +144,8 @@ export const api = {
     }
   },
 
-  deleteCourse: async (id) => {
-    try {
-      const response = await axios.delete(API.COURSES.DELETE(id));
-      return handleResponse(response);
-    } catch (error) {
-      console.error('Error deleting course:', error);
-      throw error;
-    }
-  },
+  // Course deletion is not supported by the backend. Only course instance deletion is available.
+
 
   // --- Course Instance APIs ---
 
