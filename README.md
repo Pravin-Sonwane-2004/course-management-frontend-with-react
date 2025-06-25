@@ -12,6 +12,20 @@ A clean, responsive frontend for a Course Management System built with 💻 Reac
 - **File Upload/Download** capabilities in the assignments module  
 - **Spring Boot** backend (ensure backend is running separately)
 
+
+---
+
+## 📸 Screenshots
+
+### 🏠 Home Page
+![Home Page](./assets/courses.png)
+
+### 🔐 Login Page
+![Instance Page](./assets/instances.png)
+
+### 📂 Assignment Upload Page
+![Home Page](./assets/homepage.png)
+
 ---
 
 ## 🔍 Features
